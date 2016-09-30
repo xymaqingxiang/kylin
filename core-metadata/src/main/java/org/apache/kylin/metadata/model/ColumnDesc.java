@@ -24,8 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.kylin.metadata.datatype.DataType;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 /**
  * Column Metadata from Source. All name should be uppercase.
@@ -54,6 +54,7 @@ public class ColumnDesc implements Serializable {
 
     // parsed from data type
     private DataType type;
+    private DataType upgradedType;
 
     private TableDesc table;
     private int zeroBasedIndex = -1;
@@ -79,10 +80,30 @@ public class ColumnDesc implements Serializable {
         return datatype;
     }
 
+    public String getTypeName() {
+        return type.getName();
+    }
+
+    public DataType getType() {
+        return type;
+    }
+
     public void setDatatype(String datatype) {
         //logger.info("setting datatype to " + datatype);
         this.datatype = datatype;
         type = DataType.getType(datatype);
+    }
+
+    public void setUpgradedType(String datatype) {
+        this.upgradedType = DataType.getType(datatype);
+    }
+
+    public DataType getUpgradedType() {
+        if (this.upgradedType == null) {
+            return this.type;
+        } else {
+            return this.upgradedType;
+        }
     }
 
     public String getId() {
@@ -107,14 +128,6 @@ public class ColumnDesc implements Serializable {
 
     public void setTable(TableDesc table) {
         this.table = table;
-    }
-
-    public DataType getType() {
-        return type;
-    }
-
-    public String getTypeName() {
-        return type.getName();
     }
 
     public int getTypePrecision() {
@@ -173,28 +186,24 @@ public class ColumnDesc implements Serializable {
         if (getClass() != obj.getClass())
             return false;
         ColumnDesc other = (ColumnDesc) obj;
-        
+
         if (name == null) {
             if (other.name != null)
                 return false;
         } else if (!name.equals(other.name))
             return false;
-        
+
         if (datatype == null) {
             if (other.datatype != null)
                 return false;
         } else if (!datatype.equals(other.datatype))
             return false;
-        
+
         return true;
     }
 
     @Override
     public String toString() {
-        return "ColumnDesc{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", datatype='" + datatype + '\'' +
-                '}';
+        return "ColumnDesc{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", datatype='" + datatype + '\'' + '}';
     }
 }
